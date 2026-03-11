@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white; text-align: center; font-family: sans-serif;
+            display: flex; flex-direction: column; align-items: center; 
+            height: 100vh; margin: 0; justify-content: center;
+        }
+        .cat-container { height: 250px; margin: 20px; display: flex; align-items: center; justify-content: center; }
+        img { max-height: 100%; transition: 0.3s; }
+        #weight { font-size: 3em; margin: 0; text-shadow: 2px 2px 10px rgba(0,0,0,0.3); }
+        .btn {
+            background: #00d2ff; border: none; padding: 15px 40px;
+            border-radius: 50px; color: white; font-weight: bold; 
+            font-size: 1.2em; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-top: 10px;
+        }
+        .btn:active { transform: scale(0.95); }
+        p { opacity: 0.8; font-size: 0.9em; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <h1 id="weight">Загрузка...</h1>
+    
+    <div class="cat-container">
+        <img id="cat-img" src="cat_level1_thin.png" alt="Кот">
+    </div>
+
+    <button class="btn" onclick="location.reload()">ОБНОВИТЬ</button>
+    <p>Корми кота в чате командой !котик</p>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // --- СТРОКА 35: ЗАМЕНИ НА СВОЮ ССЫЛКУ ОТ AMVERA ---
+        const URL_BACKEND = "ВСТАВЬ_ССЫЛКУ_ИЗ_AMVERA_СЮДА"; 
+
+        const weightDisplay = document.getElementById('weight');
+        const catImg = document.getElementById('cat-img');
+
+        async function loadData() {
+            try {
+                // Получаем ID пользователя из Telegram
+                const userId = tg.initDataUnsafe.user.id;
+                const response = await fetch(`${URL_BACKEND}/data/${userId}`);
+                const data = await response.json();
+                
+                const weight = data.w || 0;
+                weightDisplay.innerText = `${weight.toFixed(2)} кг`;
+
+                // Меняем картинку в зависимости от веса
+                if (weight < 20) {
+                    catImg.src = "cat_level1_thin.png";
+                } else if (weight < 50) {
+                    catImg.src = "cat_level2_average.png";
+                } else {
+                    catImg.src = "cat_level3_fat.png";
+                }
+            } catch (e) {
+                weightDisplay.innerText = "Ошибка сети";
+                console.error(e);
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
